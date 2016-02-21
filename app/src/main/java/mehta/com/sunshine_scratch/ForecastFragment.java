@@ -28,12 +28,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
 
     public final static String cityCode = "K1A 0A1";
+
+    ArrayAdapter<String> forecastAdapter;
 
     public ForecastFragment() {
     }
@@ -71,8 +74,8 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Invoke background network operation
-       new FetchWeatherTask().execute(cityCode);
+        // Make fetch weather request & populate 7 day weather forecast
+//       new FetchWeatherTask().execute(cityCode);
 
         // Dummy data
         // Populate array
@@ -91,7 +94,7 @@ public class ForecastFragment extends Fragment {
             weatherForecastlist.add(values[i]);
         }
 
-        ArrayAdapter<String> forecastAdapter = new ArrayAdapter<String>(
+        forecastAdapter = new ArrayAdapter<String>(
                 getActivity(), // The current context (this activity)
                 R.layout.fragment_main, //The ID of list layout
                 R.id.list_item_forecast_textview2, // The ID of textview to populate
@@ -196,7 +199,25 @@ public class ForecastFragment extends Fragment {
                 return null;
             }
 
+            // This will only happen if there was an error getting or parsing the forecast.
             return lResultForecast;
+        }
+
+        /**
+         * Populate forecast adapter with weather forecast
+         *
+         * @param result - Result weather forecast array
+         */
+        @Override
+        protected void onPostExecute(String[] result) {
+            if(result != null) {
+                // Remove previous forecast info
+                forecastAdapter.clear();
+                // Add new forecast info to adapter
+                for (String forecast : result) {
+                    forecastAdapter.add(forecast);
+                }
+            }
         }
 
         private String getFormattedDate(Long millisecval) {
@@ -304,8 +325,6 @@ public class ForecastFragment extends Fragment {
         private String[] getForecastWeather(String aInJSONResponse, int aInDayIndex)
         {
             String[] lWeatherForecastArr = null;
-
-
 
             return lWeatherForecastArr;
 
