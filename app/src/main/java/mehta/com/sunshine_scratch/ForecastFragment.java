@@ -14,20 +14,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
 
-    public final static String cityCode = "145001";
+    public final static String cityCode = "K1A 0A1";
 
     public ForecastFragment() {
     }
@@ -51,6 +57,8 @@ public class ForecastFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
+            // For debugging purpose
+            // (TODO: Remove in production app)
             // Invoke background network operation
             new FetchWeatherTask().execute(cityCode);
             return  true;
@@ -62,6 +70,9 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // Invoke background network operation
+       new FetchWeatherTask().execute(cityCode);
 
         // Dummy data
         // Populate array
@@ -96,23 +107,21 @@ public class ForecastFragment extends Fragment {
         // Bind forecast adapter(contains info about raw data) to the listview
         myforecastList.setAdapter(forecastAdapter);
 
-        // Invoke background network operation
-        new FetchWeatherTask().execute(cityCode);
-
         return rootView;
     }
 
     // Fetch weather information
-    private class FetchWeatherTask extends AsyncTask<String, Void, String>
+    private class FetchWeatherTask extends AsyncTask<String, Void, String[]>
     {
 
         // Async tasks log tag for debugging
         final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected String doInBackground(String... params) {
-            HttpURLConnection lUrlConnection = null;
-            BufferedReader lReader = null;
+        protected String[] doInBackground(String... params) {
+
+            // test: Weather forecast output string array
+            String[] lResultForecast=null;
 
             // Weather JSON response string
             String lWeatherResponseStr = null;
@@ -120,36 +129,117 @@ public class ForecastFragment extends Fragment {
             // Values for http request
             String format = "json";
             String units = "metric";
-            int numDaysForecast = 7;
+            int  numDaysForecast = 7;
             final String appId = "bd91203cfb4a2e3e7aa532a9f12651f5";
             try
             {
-                // Base url request
-                // (Example:http://api.openweathermap.org/data/2.5/forecast/daily?q=94043,USA
-                // &mode=json&cnt=7&units=metric&appid=bd91203cfb4a2e3e7aa532a9f12651f5)
-                final String FORECAST_BASE_URL =
-                        "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final String QUERY_PARAM = "q";
-                final String FORMAT_PARAM = "mode";
-                final String UNITS_PARAM = "units";
-                final String DAYS_PARAM = "cnt";
-                final String APPID_PARAM = "APPID";
-
-                Uri requestUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0]) // Params[0] is city zipcode
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDaysForecast))
-                        .appendQueryParameter(APPID_PARAM, appId)
-                        .build();
-
-                // OpenWeather map query (Src: http://openweathermap.org/API)
+                // Create forecast request with city's postal code i.e. params[0]
+                Uri requestUri = getRequest(format, units, numDaysForecast, appId, params[0]);
                 URL lUrl = new URL(requestUri.toString());
 
                 Log.v(LOG_TAG, "Openweather request :" + requestUri.toString());
 
+                // Send request & weather response string
+                lWeatherResponseStr = sendRequestFetchResult(lUrl);
+
+                /* Parse json object */
+                try {
+                    JSONObject lWeatherJsonResponse = new JSONObject(lWeatherResponseStr);
+                    JSONArray lForecastList = lWeatherJsonResponse.getJSONArray("list");
+
+                    //length of resultant forecast array
+                    lResultForecast = new String[lForecastList.length()];
+
+                    // Put json weather list to a tmp forecast array
+                    for (int i=0; i<lForecastList.length(); i++)
+                    {
+                        String lDay;
+                        String lDescription;
+                        String lMaxTemp;
+                        String lMinTemp;
+
+                        // Reference of forecast list detail
+                        JSONObject lDayForecast = lForecastList.getJSONObject(i);
+
+                        // Get date
+                        Long millisecval = lDayForecast.getLong("dt");
+                        lDay = getFormattedDate(millisecval);
+
+                        //Get description
+                        JSONObject lWeatherDescriptionDetails = lDayForecast.getJSONArray("weather").getJSONObject(0);
+                        lDescription = lWeatherDescriptionDetails.getString("description");
+
+                        // Get high & low temp
+                        JSONObject lTempDetails = lDayForecast.getJSONObject("temp");
+                        Double lMxTemp = lTempDetails.getDouble("max");
+                        Double lMnTemp = lTempDetails.getDouble("min");
+                        // Round off temperature values
+                        lMaxTemp =  String.valueOf(Math.round(lMxTemp));
+                        lMinTemp =  String.valueOf(Math.round(lMnTemp));
+
+                        // Add individual entry into result weather forecast tile
+                        lResultForecast[i] = lDay + " - " + lDescription + " - " + lMaxTemp + "/" + lMinTemp;
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.v(LOG_TAG, "Http Json Response :" + lWeatherResponseStr);
+            }
+            catch (IOException e)
+            {
+                Log.e(LOG_TAG, "Error", e);
+
+                // If no response is received then there is no point of parsing it
+                return null;
+            }
+
+            return lResultForecast;
+        }
+
+        private String getFormattedDate(Long millisecval) {
+            Date dt = new Date(millisecval);
+            // Format eg: Sat Jan 17
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd");
+            return sdf.format(dt);
+        }
+
+        private Uri getRequest(String format, String units, int numDaysForecast, String appId, String param) {
+            // Base url request
+            // (Example:http://api.openweathermap.org/data/2.5/forecast/daily?q=94043,USA
+            // &mode=json&cnt=7&units=metric&appid=bd91203cfb4a2e3e7aa532a9f12651f5)
+            final String FORECAST_BASE_URL =
+                    "http://api.openweathermap.org/data/2.5/forecast/daily?";
+            final String QUERY_PARAM = "q";
+            final String FORMAT_PARAM = "mode";
+            final String UNITS_PARAM = "units";
+            final String DAYS_PARAM = "cnt";
+            final String APPID_PARAM = "APPID";
+
+            return Uri.parse(FORECAST_BASE_URL).buildUpon()
+                    .appendQueryParameter(QUERY_PARAM, param) // Params[0] is city zipcode
+                    .appendQueryParameter(FORMAT_PARAM, format)
+                    .appendQueryParameter(UNITS_PARAM, units)
+                    .appendQueryParameter(DAYS_PARAM, Integer.toString(numDaysForecast))
+                    .appendQueryParameter(APPID_PARAM, appId)
+                    .build();
+        }
+
+        private String sendRequestFetchResult(URL aInRequest)
+        {
+            // Http connection reference
+            HttpURLConnection lUrlConnection = null;
+            // Reads http response
+            BufferedReader lReader = null;
+
+            // Weather json string response
+            String lWeatherResponseStr = null;
+
+            try {
                 // Create request to openWeatherMap, and open the connection
-                lUrlConnection = (HttpURLConnection)lUrl.openConnection();
+                lUrlConnection = (HttpURLConnection) aInRequest.openConnection();
                 lUrlConnection.setRequestMethod("GET");
                 lUrlConnection.connect();
 
@@ -182,15 +272,10 @@ public class ForecastFragment extends Fragment {
 
                 // Set the weather infor response
                 lWeatherResponseStr = lStrBuffer.toString();
-
-                Log.v(LOG_TAG, "Http Json Response :" + lWeatherResponseStr);
             }
             catch (IOException e)
             {
                 Log.e(LOG_TAG, "Error", e);
-
-                // If no response is recieved then there is no point of parsing it
-                return null;
             }
             finally
             {
@@ -199,6 +284,7 @@ public class ForecastFragment extends Fragment {
                 {
                     lUrlConnection.disconnect();
                 }
+
                 if (lReader != null)
                 {
                     try
@@ -210,10 +296,19 @@ public class ForecastFragment extends Fragment {
                         Log.e(LOG_TAG, "Error closing stream", e);
                     }
                 }
-
             }
 
             return lWeatherResponseStr;
+        }
+
+        private String[] getForecastWeather(String aInJSONResponse, int aInDayIndex)
+        {
+            String[] lWeatherForecastArr = null;
+
+
+
+            return lWeatherForecastArr;
+
         }
     }
 }
