@@ -11,8 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -109,6 +111,19 @@ public class ForecastFragment extends Fragment {
 
         // Bind forecast adapter(contains info about raw data) to the listview
         myforecastList.setAdapter(forecastAdapter);
+
+        // Register a callback to be invoked when a list item is clicked
+        myforecastList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                // Raise a toast notification of the item clicked
+                String lForecastToastStr = forecastAdapter.getItem(position);
+                Toast.makeText(getActivity(), lForecastToastStr,
+                        Toast.LENGTH_LONG).show();
+                System.out.println("Item clicked" + String.valueOf(position));
+            }
+        });
 
         return rootView;
     }
