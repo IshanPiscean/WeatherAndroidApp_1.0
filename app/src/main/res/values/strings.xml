@@ -8,4 +8,9 @@
     <string name="action_refresh">Refresh</string>
     <string name="title_activity_forecast_detail">ForecastDetailActivity</string>
     <string name="title_activity_weather_detail">WeatherDetailActivity</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_main_activity2">MainActivity2Activity</string>
 </resources>
