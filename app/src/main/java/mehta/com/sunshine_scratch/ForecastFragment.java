@@ -1,5 +1,6 @@
 package mehta.com.sunshine_scratch;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +42,8 @@ public class ForecastFragment extends Fragment {
 
     ArrayAdapter<String> forecastAdapter;
 
+    TextView list_item_textview = null;
+
     public ForecastFragment() {
     }
 
@@ -48,6 +52,8 @@ public class ForecastFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // To state fragment has menu options
         setHasOptionsMenu(true);
+
+        list_item_textview = (TextView) getActivity().findViewById(R.id.list_item_forecast_textview);
     }
 
     @Override
@@ -76,9 +82,6 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Make fetch weather request & populate 7 day weather forecast
-//       new FetchWeatherTask().execute(cityCode);
-
         // Dummy data
         // Populate array
         String[] values = new String[] { "Mon 6/23 - Sunny - 31/17",
@@ -87,21 +90,26 @@ public class ForecastFragment extends Fragment {
                 "Thurs 6/26 - Rainy - 18/11",
                 "Fri 6/27 - Foggy - 21/10",
                 "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7" };
+                "Sun 6/29 - Sunny - 20/7" ,
+                "Sun 6/29 - Sunny - 20/7",
+                "Sun 6/29 - Sunny - 20/7"
+        , "Sun 6/29 - Sunny - 20/7"};
 
         // Add array to arraylist
-        List<String> weatherForecastlist = new ArrayList<String>();
+        List<String> weatherForecastList = new ArrayList<String>(Arrays.asList(values));
 
-        for(int i= 0; i < values.length; ++i){
-            weatherForecastlist.add(values[i]);
-        }
-
+//        forecastAdapter = new ArrayAdapter<String>(
+//                getActivity(), // The current context (this activity)
+//                R.layout.fragment_main, //The ID of layout containing list
+//                R.id.list_item_forecast_textview, // The ID of textview to populate
+//                weatherForecastList // weather forecast list data
+//                );
+        // Working perfectly !!
         forecastAdapter = new ArrayAdapter<String>(
-                getActivity(), // The current context (this activity)
-                R.layout.fragment_main, //The ID of list layout
-                R.id.list_item_forecast_textview2, // The ID of textview to populate
-                weatherForecastlist // weather forecast list data
-                );
+                getActivity(),
+                R.layout.layout1,
+                weatherForecastList
+        );
 
         // Get a root view of the xml UI hierarchy
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -112,17 +120,25 @@ public class ForecastFragment extends Fragment {
         // Bind forecast adapter(contains info about raw data) to the listview
         myforecastList.setAdapter(forecastAdapter);
 
+
         // Register a callback to be invoked when a list item is clicked
         myforecastList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                // Raise a toast notification of the item clicked
-                String lForecastToastStr = forecastAdapter.getItem(position);
-                Toast.makeText(getActivity(), lForecastToastStr,
-                        Toast.LENGTH_LONG).show();
-                System.out.println("Item clicked" + String.valueOf(position));
+                // Day forecast string
+                String lForecast = forecastAdapter.getItem(position);
+
+                // Explicit intent
+                Intent lIntent =  new Intent();
+                lIntent.setClass(getActivity(), DetailActivity.class);
+                lIntent.putExtra(Intent.EXTRA_TEXT, lForecast);
+                //Launch a new activity
+                startActivity(lIntent);
             }
+
+
+
         });
 
         return rootView;

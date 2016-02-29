@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -18,6 +19,17 @@ public class DetailActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+
+        // Get a root view of the xml UI hierarchy
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        TextView lForecastView = (TextView) rootView.findViewById(R.id.detail_forecast_text);
+
+        // Set forecast string in detail fragment textview
+        if(lForecastView != null) {
+            lForecastView.setText(DetailActivity.lForecast);
+        }
+
+        return rootView;
     }
 }

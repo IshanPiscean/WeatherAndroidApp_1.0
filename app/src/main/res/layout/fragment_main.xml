@@ -6,21 +6,27 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity"
-    android:id="@+id/myfragmentlistLayout">
+    tools:context=".MainActivity$ForecastFragment"
+    android:id="@+id/myfragmentlistLayout"
+    android:descendantFocusability="blocksDescendants"
+    >
 
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/listview_forecast" />
+        android:id="@+id/listview_forecast"
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent" android:layout_height="match_parent"
+        />
+
+    <!-- Arrayadapter content = forecast list items -->
+    <TextView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
         android:id="@+id/list_item_forecast_textview2"
         android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeight">
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:focusable="false"
+       />
 
-    </TextView>
 
 </FrameLayout>

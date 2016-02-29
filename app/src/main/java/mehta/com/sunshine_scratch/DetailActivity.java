@@ -1,5 +1,6 @@
 package mehta.com.sunshine_scratch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -8,10 +9,19 @@ import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
 
+    // Forecast to be displayed on detailed fragment
+    public static String lForecast;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        // // Get weather forecast from intent
+        if (getIntent() != null & getIntent().hasExtra(Intent.EXTRA_TEXT))
+        {
+        lForecast = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -19,7 +29,6 @@ public class DetailActivity extends AppCompatActivity {
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
