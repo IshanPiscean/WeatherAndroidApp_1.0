@@ -37,6 +37,7 @@ public class DetailActivity extends AppCompatActivity {
         return true;
     }
 
+    // WEATHER SETTINGS for detail activity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -46,6 +47,12 @@ public class DetailActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Intent lIntent = new Intent();
+            lIntent.setClass(this, SettingsActivity.class);
+
+            startActivity(lIntent);
+
             return true;
         }
 

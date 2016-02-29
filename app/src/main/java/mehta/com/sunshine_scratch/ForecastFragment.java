@@ -1,9 +1,11 @@
 package mehta.com.sunshine_scratch;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -37,8 +38,6 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
-
-    public final static String cityCode = "K1A 0A1";
 
     ArrayAdapter<String> forecastAdapter;
 
@@ -53,7 +52,15 @@ public class ForecastFragment extends Fragment {
         // To state fragment has menu options
         setHasOptionsMenu(true);
 
+        // Todo : Move it inside onCreateView
         list_item_textview = (TextView) getActivity().findViewById(R.id.list_item_forecast_textview);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //Update weather
+        updateWeather();
     }
 
     @Override
@@ -68,13 +75,22 @@ public class ForecastFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            // For debugging purpose
-            // (TODO: Remove in production app)
-            // Invoke background network operation
-            new FetchWeatherTask().execute(cityCode);
+            updateWeather();
             return  true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void updateWeather() {
+        //USe user's city value to fetch weather forecast
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        // Set city to send it to the openmapapi
+        String location = preference.getString(getString(R.string.pref_key_location),
+                getString(R.string.pref_default_location));
+
+        // Invoke background network operation
+        new FetchWeatherTask().execute(location);
     }
 
     // UI gets created
@@ -82,28 +98,9 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Dummy data
-        // Populate array
-        String[] values = new String[] { "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7" ,
-                "Sun 6/29 - Sunny - 20/7",
-                "Sun 6/29 - Sunny - 20/7"
-        , "Sun 6/29 - Sunny - 20/7"};
+        // Empty arraylist to pass in adapter
+        List<String> weatherForecastList = new ArrayList<String>();
 
-        // Add array to arraylist
-        List<String> weatherForecastList = new ArrayList<String>(Arrays.asList(values));
-
-//        forecastAdapter = new ArrayAdapter<String>(
-//                getActivity(), // The current context (this activity)
-//                R.layout.fragment_main, //The ID of layout containing list
-//                R.id.list_item_forecast_textview, // The ID of textview to populate
-//                weatherForecastList // weather forecast list data
-//                );
         // Working perfectly !!
         forecastAdapter = new ArrayAdapter<String>(
                 getActivity(),

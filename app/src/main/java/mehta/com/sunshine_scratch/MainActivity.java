@@ -1,5 +1,6 @@
 package mehta.com.sunshine_scratch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -25,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * WEATHER APP SETTINGS
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -34,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Intent lIntent = new Intent();
+            lIntent.setClass(this, SettingsActivity.class);
+            startActivity(lIntent);
+
             return true;
         }
         return super.onOptionsItemSelected(item);
