@@ -41,6 +41,9 @@ public class ForecastFragment extends Fragment {
 
     ArrayAdapter<String> forecastAdapter;
 
+    //USe user's city value to fetch weather forecast
+    SharedPreferences preference;
+
     TextView list_item_textview = null;
 
     public ForecastFragment() {
@@ -51,6 +54,8 @@ public class ForecastFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // To state fragment has menu options
         setHasOptionsMenu(true);
+
+        preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Todo : Move it inside onCreateView
         list_item_textview = (TextView) getActivity().findViewById(R.id.list_item_forecast_textview);
@@ -82,8 +87,6 @@ public class ForecastFragment extends Fragment {
     }
 
     public void updateWeather() {
-        //USe user's city value to fetch weather forecast
-        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Set city to send it to the openmapapi
         String location = preference.getString(getString(R.string.pref_key_location),
@@ -159,9 +162,16 @@ public class ForecastFragment extends Fragment {
 
             // Values for http request
             String format = "json";
-            String units = "metric";
+
+            String units = getUnitsString();
+
+
+            // No. of days in a week
             int  numDaysForecast = 7;
+
+            // OpenMapApi key generated from the openmap website
             final String appId = "bd91203cfb4a2e3e7aa532a9f12651f5";
+
             try
             {
                 // Create forecast request with city's postal code i.e. params[0]
@@ -229,6 +239,26 @@ public class ForecastFragment extends Fragment {
 
             // This will only happen if there was an error getting or parsing the forecast.
             return lResultForecast;
+        }
+
+        // Temperature units to send in the http api request
+        private String getUnitsString() {
+
+            // If nothing is returned then pref_default units value will be used in strings
+            // Otherwise 0 or -1 is returned
+            String units = preference.getString(getString(R.string.pref_key_temperature),
+                    getString(R.string.pref_default_tempUnits));
+
+                if(units.equals("-1"))
+                {
+                    units = "metric";
+                }
+                else if(units.equals("0"))
+                {
+                    units = "imperial";
+                }
+
+            return units;
         }
 
         /**

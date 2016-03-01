@@ -3,18 +3,13 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="mehta.com.sunshine_scratch.SettingsActivity$LocationPreferenceFragment"
+        android:fragment="mehta.com.sunshine_scratch.SettingsActivity2$LocationPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/pref_location" />
 
     <header
-        android:fragment="mehta.com.sunshine_scratch.SettingsActivity$NotificationPreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/pref_header_notifications" />
-
-    <header
-        android:fragment="mehta.com.sunshine_scratch.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="mehta.com.sunshine_scratch.SettingsActivity2$TemperaturePreferenceFragment"
         android:icon="@drawable/ic_sync_black_24dp"
-        android:title="@string/pref_header_data_sync" />
+        android:title="@string/pref_temperature" />
 
 </preference-headers>
