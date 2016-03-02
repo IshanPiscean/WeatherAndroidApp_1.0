@@ -1,13 +1,19 @@
 package mehta.com.sunshine_scratch;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    final static String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,40 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
+        else if(id == R.id.action_map)
+        {
+            SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+            // Get preferred location
+            String location = preference.getString(getString
+                    (R.string.pref_key_location),
+                    getString(R.string.pref_default_location));
+            // Show the location on map application
+            showMap(location);
+
+            return  true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * View location on a map
+     * @param aInLocation
+     */
+    public void showMap(String aInLocation) {
+
+        final String BASE_URL = "geo:0,0?";
+        final String QUERY_PARAM = "q";
+
+        Uri mapLocation =Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter(QUERY_PARAM,aInLocation)
+                .build();
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+        mapIntent.setData(mapLocation);
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
+        else {
+            Log.d(LOG_TAG, "Couldn't find" + aInLocation + " on map");
+        }
     }
 }

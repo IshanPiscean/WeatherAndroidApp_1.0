@@ -4,12 +4,12 @@
 
     <header
         android:fragment="mehta.com.sunshine_scratch.SettingsActivity2$LocationPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
+        android:icon="@drawable/ic_gps_fixed_black_24dp"
         android:title="@string/pref_location" />
 
     <header
         android:fragment="mehta.com.sunshine_scratch.SettingsActivity2$TemperaturePreferenceFragment"
-        android:icon="@drawable/ic_sync_black_24dp"
+        android:icon="@drawable/other"
         android:title="@string/pref_temperature" />
 
 </preference-headers>

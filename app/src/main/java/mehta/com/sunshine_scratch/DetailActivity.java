@@ -49,7 +49,7 @@ public class DetailActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
 
             Intent lIntent = new Intent();
-            lIntent.setClass(this, SettingsActivity.class);
+            lIntent.setClass(this, SettingsActivity2.class);
 
             startActivity(lIntent);
 

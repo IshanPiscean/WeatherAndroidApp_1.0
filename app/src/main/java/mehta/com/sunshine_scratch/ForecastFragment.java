@@ -80,12 +80,18 @@ public class ForecastFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
+            // TODO: Remove in production app
+            // Refresh button action for debugging purpose
             updateWeather();
             return  true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Update location weather with either city/country name or postal code
+     */
     public void updateWeather() {
 
         // Set city to send it to the openmapapi
