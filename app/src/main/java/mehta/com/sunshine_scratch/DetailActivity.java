@@ -10,7 +10,7 @@ import android.view.MenuItem;
 public class DetailActivity extends AppCompatActivity {
 
     // Forecast to be displayed on detailed fragment
-    public static String lForecast;
+    public static String Forecast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +20,7 @@ public class DetailActivity extends AppCompatActivity {
         // // Get weather forecast from intent
         if (getIntent() != null & getIntent().hasExtra(Intent.EXTRA_TEXT))
         {
-        lForecast = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+        Forecast = getIntent().getStringExtra(Intent.EXTRA_TEXT);
         }
 
         if (savedInstanceState == null) {
@@ -34,6 +34,7 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
+
         return true;
     }
 
